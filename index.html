@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Rod Wave World</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -365,6 +365,157 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   transition:background 0.2s;
 }
 #restart-btn:hover { background:#f0d080; }
+
+/* ═══════════════════════════════
+   PORTRAIT OVERLAY
+═══════════════════════════════ */
+#portrait-overlay {
+  position:fixed; inset:0; z-index:9999;
+  display:none; flex-direction:column;
+  align-items:center; justify-content:center; gap:20px;
+  background:rgba(4,2,12,0.96);
+  color:#c9a84c;
+  font-family:'Bebas Neue',sans-serif;
+  text-align:center;
+}
+#portrait-overlay .rotate-icon {
+  font-size:60px;
+  animation: rotatePhone 2s ease-in-out infinite;
+}
+#portrait-overlay .rotate-text {
+  font-size:28px; letter-spacing:4px;
+  color:#ede5d8;
+}
+#portrait-overlay .rotate-sub {
+  font-size:14px; letter-spacing:2px;
+  color:rgba(201,168,76,0.6);
+}
+@keyframes rotatePhone {
+  0%,100% { transform:rotate(0deg); }
+  25% { transform:rotate(90deg); }
+  50% { transform:rotate(90deg); }
+  75% { transform:rotate(0deg); }
+}
+
+/* ═══════════════════════════════
+   VIRTUAL TOUCH CONTROLS
+═══════════════════════════════ */
+#touch-controls {
+  position:fixed; inset:0; z-index:15;
+  pointer-events:none;
+  display:none;
+}
+#joystick-zone {
+  position:absolute; bottom:20px; left:20px;
+  width:130px; height:130px;
+  pointer-events:all;
+  touch-action:none;
+}
+#joystick-base {
+  position:absolute; inset:0;
+  border-radius:50%;
+  background:rgba(201,168,76,0.12);
+  border:2px solid rgba(201,168,76,0.35);
+}
+#joystick-thumb {
+  position:absolute;
+  width:52px; height:52px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(201,168,76,0.65), rgba(201,168,76,0.25));
+  border:2px solid rgba(201,168,76,0.7);
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+}
+#touch-buttons {
+  position:absolute; bottom:20px; right:20px;
+  display:flex; flex-direction:column; gap:14px;
+  align-items:center;
+  pointer-events:all;
+  touch-action:none;
+}
+#touch-jump-btn, #touch-dash-btn {
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%;
+  font-family:'Bebas Neue',sans-serif;
+  letter-spacing:2px;
+  color:#06030f;
+  font-weight:bold;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#touch-jump-btn {
+  width:76px; height:76px;
+  background:radial-gradient(circle, #f0d080, #c9a84c);
+  border:3px solid rgba(255,255,255,0.25);
+  font-size:17px;
+  box-shadow:0 0 18px rgba(201,168,76,0.35);
+}
+#touch-jump-btn.pressed {
+  background:radial-gradient(circle, #fff8e0, #f0d080);
+  box-shadow:0 0 28px rgba(201,168,76,0.7);
+  transform:scale(0.92);
+}
+#touch-dash-btn {
+  width:60px; height:60px;
+  background:radial-gradient(circle, rgba(100,180,255,0.75), rgba(60,120,200,0.55));
+  border:2px solid rgba(100,180,255,0.45);
+  font-size:13px;
+  box-shadow:0 0 14px rgba(100,180,255,0.25);
+}
+#touch-dash-btn.pressed {
+  background:radial-gradient(circle, rgba(180,220,255,0.9), rgba(100,180,255,0.65));
+  box-shadow:0 0 22px rgba(100,180,255,0.6);
+  transform:scale(0.92);
+}
+#touch-dash-btn.on-cooldown {
+  background:radial-gradient(circle, rgba(60,60,80,0.5), rgba(40,40,60,0.35));
+  border-color:rgba(100,180,255,0.15);
+  box-shadow:none;
+  opacity:0.45;
+}
+#camera-touch-zone {
+  position:absolute; top:0; right:0;
+  width:50%; height:calc(100% - 170px);
+  pointer-events:all;
+  touch-action:none;
+}
+
+/* ═══════════════════════════════
+   MOBILE RESPONSIVE
+═══════════════════════════════ */
+@media (max-width:768px), (max-height:500px) {
+  .menu-card {
+    padding:30px 24px 25px;
+    min-width:auto; width:90vw; max-width:400px;
+  }
+  .menu-title { font-size:48px; }
+  .menu-eyebrow { font-size:9px; letter-spacing:4px; }
+  .menu-sub { font-size:10px; letter-spacing:3px; margin-bottom:16px; }
+  .rw-image-wrap { width:120px; height:120px; margin-bottom:-18px; }
+  .gamemode-row { gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .gm-btn {
+    padding:8px 12px; font-size:11px; letter-spacing:2px;
+    min-height:44px; min-width:44px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .play-btn { padding:12px 36px; font-size:22px; min-height:48px; }
+  .menu-footer { font-size:9px; letter-spacing:1px; }
+  .menu-divider { margin-bottom:16px; }
+  #stage-pill { font-size:13px; padding:3px 12px; top:10px; }
+  .hud-stat { font-size:13px; padding:3px 8px; }
+  #hud-stats { top:10px; left:10px; gap:3px; }
+  #controls-bar { display:none; }
+  #dash-indicator { display:none; }
+  #checkpoint-toast { font-size:16px; padding:5px 18px; top:44px; }
+}
+
+/* ═══════════════════════════════
+   BLOOM / GLOW
+═══════════════════════════════ */
+canvas.game-canvas {
+  filter: contrast(1.06) saturate(1.08) brightness(1.02);
+}
 </style>
 </head>
 <body>
@@ -446,6 +597,26 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
 <div id="death-flash"></div>
 <div id="dash-flash"></div>
 
+<!-- Portrait Overlay (Mobile) -->
+<div id="portrait-overlay">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">PLEASE ROTATE YOUR<br>DEVICE TO LANDSCAPE</div>
+  <div class="rotate-sub">FOR THE BEST EXPERIENCE</div>
+</div>
+
+<!-- Virtual Touch Controls (Mobile) -->
+<div id="touch-controls">
+  <div id="camera-touch-zone"></div>
+  <div id="joystick-zone">
+    <div id="joystick-base"></div>
+    <div id="joystick-thumb"></div>
+  </div>
+  <div id="touch-buttons">
+    <div id="touch-jump-btn">JUMP</div>
+    <div id="touch-dash-btn">DASH</div>
+  </div>
+</div>
+
 <div id="win-screen">
   <h2>🏆 YOU WIN!</h2>
   <p>You Surfed The World</p>
@@ -486,6 +657,34 @@ function selectMode(m){
     document.getElementById('btn-'+id).classList.toggle('active',id===m);
   });
 }
+
+/* ═══════════════════════════════════════
+   MOBILE DETECTION & ORIENTATION
+═══════════════════════════════════════ */
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (('ontouchstart' in window) && navigator.maxTouchPoints > 1);
+
+function checkOrientation(){
+  if(!isMobile) return;
+  const overlay = document.getElementById('portrait-overlay');
+  const isPortrait = window.innerHeight > window.innerWidth;
+  overlay.style.display = isPortrait ? 'flex' : 'none';
+}
+window.addEventListener('orientationchange', ()=> setTimeout(checkOrientation, 150));
+window.addEventListener('resize', checkOrientation);
+setTimeout(checkOrientation, 100);
+
+if(isMobile){
+  document.querySelector('.menu-footer').innerHTML = 'JOYSTICK &middot; MOVE &nbsp;|&nbsp; TAP &middot; JUMP &nbsp;|&nbsp; SWIPE &middot; CAMERA';
+}
+
+/* ── TOUCH CONTROL STATE ── */
+let touchJoystickId = null;
+let touchJoystickX = 0, touchJoystickY = 0;
+let touchCameraId = null;
+let touchCameraLastX = 0, touchCameraLastY = 0;
+let ambientParticles = [];
+let playerGlow = null;
+let skyDome = null;
 
 /* ═══════════════════════════════════════
    GAME STATE
@@ -563,6 +762,7 @@ function restartGame(){
   currentCheckpoint=null; lastCheckpointId=-1;
   coyoteCounter=0; jumpBufferCounter=0; wasOnGround=false;
   dashCooldownTimer=0; dashVelX=0; dashVelZ=0;
+  touchJoystickX=0; touchJoystickY=0; touchJoystickId=null; touchCameraId=null;
   dashParticles.forEach(dp=>scene.remove(dp.mesh)); dashParticles=[];
   if(renderer) renderer.domElement.style.transform='';
   lastGroundPlat=null;
@@ -600,8 +800,9 @@ function init(){
   renderer.setSize(innerWidth,innerHeight);
   renderer.shadowMap.enabled=true;
   renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setPixelRatio(isMobile ? Math.min(devicePixelRatio,1.5) : Math.min(devicePixelRatio,2));
   document.body.appendChild(renderer.domElement);
+  renderer.domElement.classList.add('game-canvas');
 
   // Lighting
   scene.add(new THREE.AmbientLight(0xffffff,0.4));
@@ -609,7 +810,7 @@ function init(){
   const sun=new THREE.DirectionalLight(0xfff5e0,1.2);
   sun.position.set(40,80,30);
   sun.castShadow=true;
-  sun.shadow.mapSize.set(2048,2048);
+  sun.shadow.mapSize.set(isMobile?1024:2048,isMobile?1024:2048);
   sun.shadow.camera.near=1; sun.shadow.camera.far=2500;
   sun.shadow.camera.left=-600; sun.shadow.camera.right=600;
   sun.shadow.camera.top=600; sun.shadow.camera.bottom=-600;
@@ -655,10 +856,55 @@ function init(){
   nametagSprite.scale.set(2.8,0.7,1);
   scene.add(nametagSprite);
 
+  // Player glow aura
+  const glowMat = new THREE.SpriteMaterial({color:0xc9a84c,transparent:true,opacity:0.15,depthWrite:false});
+  playerGlow = new THREE.Sprite(glowMat);
+  playerGlow.scale.set(4.5,5.5,1);
+  scene.add(playerGlow);
+
   // Start timer
   deathCount=0; runTimer=0; timerActive=true;
 
   buildMap();
+
+  // Sky dome gradient
+  (function(){
+    const geo = new THREE.SphereGeometry(900, 32, 16);
+    const c = document.createElement('canvas');
+    c.width=2; c.height=512;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0,0,0,512);
+    g.addColorStop(0,'#0d1b3e');
+    g.addColorStop(0.25,'#1a3568');
+    g.addColorStop(0.45,'#4a7eb8');
+    g.addColorStop(0.65,'#7db8e0');
+    g.addColorStop(0.82,'#a8d8f0');
+    g.addColorStop(1.0,'#d8f0ff');
+    ctx.fillStyle=g; ctx.fillRect(0,0,2,512);
+    const tex = new THREE.CanvasTexture(c);
+    skyDome = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({map:tex,side:THREE.BackSide,fog:false}));
+    scene.add(skyDome);
+  })();
+
+  // Ambient floating particles
+  (function(){
+    const cnt = isMobile ? 40 : 80;
+    for(let i=0;i<cnt;i++){
+      const geo = new THREE.SphereGeometry(Math.random()*0.12+0.05,4,4);
+      const mat = new THREE.MeshBasicMaterial({
+        color:new THREE.Color().setHSL(0.1+Math.random()*0.1,0.7,0.7),
+        transparent:true,opacity:0.2+Math.random()*0.35,depthWrite:false
+      });
+      const m = new THREE.Mesh(geo,mat);
+      m.position.set((Math.random()-0.5)*50,1+Math.random()*25,-(Math.random()*300));
+      m.userData.floatSpd=0.3+Math.random()*0.6;
+      m.userData.floatOff=Math.random()*Math.PI*2;
+      m.userData.driftX=(Math.random()-0.5)*0.008;
+      scene.add(m);
+      ambientParticles.push(m);
+    }
+  })();
+
   setupControls();
   gameRunning=true;
   clock.start();
@@ -1350,32 +1596,153 @@ function setupControls(){
   window.addEventListener('keyup',e=>{ keys[e.code]=false; });
   window.addEventListener('contextmenu',e=>e.preventDefault());
 
-  // Click anywhere to lock pointer
-  renderer.domElement.addEventListener('click',()=>{
-    if(!pointerLocked) renderer.domElement.requestPointerLock();
-  });
+  if(!isMobile){
+    // Desktop: pointer lock camera
+    renderer.domElement.addEventListener('click',()=>{
+      if(!pointerLocked) renderer.domElement.requestPointerLock();
+    });
+    document.addEventListener('pointerlockchange',()=>{
+      pointerLocked = document.pointerLockElement === renderer.domElement;
+    });
+    document.addEventListener('mousemove',e=>{
+      if(!pointerLocked || !gameRunning) return;
+      cameraTheta -= e.movementX * 0.20;
+      cameraPhi    = Math.max(10, Math.min(85, cameraPhi - e.movementY * 0.15));
+    });
+    window.addEventListener('wheel',e=>{
+      cameraDistance=Math.max(5,Math.min(30,cameraDistance+e.deltaY*0.012));
+    });
+  } else {
+    // Mobile: show touch controls
+    document.getElementById('touch-controls').style.display='block';
 
-  document.addEventListener('pointerlockchange',()=>{
-    pointerLocked = document.pointerLockElement === renderer.domElement;
-  });
+    // ── JOYSTICK ──
+    const jZone = document.getElementById('joystick-zone');
+    const jThumb = document.getElementById('joystick-thumb');
+    const jRadius = 65;
 
-  // Mouse move — only works when pointer is locked
-  document.addEventListener('mousemove',e=>{
-    if(!pointerLocked || !gameRunning) return;
-    // movementX/Y gives raw delta regardless of screen position
-    // Negate both so dragging right rotates right, dragging up raises camera
-    cameraTheta -= e.movementX * 0.20;
-    cameraPhi    = Math.max(10, Math.min(85, cameraPhi - e.movementY * 0.15));
-  });
+    jZone.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      if(touchJoystickId !== null) return;
+      var t = e.changedTouches[0];
+      touchJoystickId = t.identifier;
+      updateJoystick(t);
+    },{passive:false});
 
-  window.addEventListener('wheel',e=>{
-    cameraDistance=Math.max(5,Math.min(30,cameraDistance+e.deltaY*0.012));
-  });
+    jZone.addEventListener('touchmove',function(e){
+      e.preventDefault();
+      for(var i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier === touchJoystickId){
+          updateJoystick(e.changedTouches[i]);
+        }
+      }
+    },{passive:false});
+
+    function endJoystick(e){
+      for(var i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier === touchJoystickId){
+          touchJoystickId = null;
+          touchJoystickX = 0; touchJoystickY = 0;
+          jThumb.style.transform = 'translate(-50%,-50%)';
+        }
+      }
+    }
+    jZone.addEventListener('touchend',endJoystick,{passive:false});
+    jZone.addEventListener('touchcancel',endJoystick,{passive:false});
+
+    function updateJoystick(touch){
+      var rect = jZone.getBoundingClientRect();
+      var cx = rect.left + rect.width/2;
+      var cy = rect.top + rect.height/2;
+      var dx = touch.clientX - cx;
+      var dy = touch.clientY - cy;
+      var dist = Math.sqrt(dx*dx+dy*dy);
+      var maxDist = jRadius;
+      if(dist > maxDist){ dx = dx/dist*maxDist; dy = dy/dist*maxDist; }
+      touchJoystickX = dx / maxDist;
+      touchJoystickY = dy / maxDist;
+      jThumb.style.transform = 'translate(calc(-50% + '+dx+'px), calc(-50% + '+dy+'px))';
+    }
+
+    // ── JUMP BUTTON ──
+    const jumpBtn = document.getElementById('touch-jump-btn');
+    jumpBtn.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      keys['Space'] = true;
+      jumpBtn.classList.add('pressed');
+    },{passive:false});
+    jumpBtn.addEventListener('touchend',function(e){
+      e.preventDefault();
+      keys['Space'] = false;
+      jumpBtn.classList.remove('pressed');
+    },{passive:false});
+    jumpBtn.addEventListener('touchcancel',function(e){
+      keys['Space'] = false;
+      jumpBtn.classList.remove('pressed');
+    },{passive:false});
+
+    // ── DASH BUTTON ──
+    const dashBtn = document.getElementById('touch-dash-btn');
+    dashBtn.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      dashBtn.classList.add('pressed');
+      if(gameRunning && !hasWon) triggerDash();
+    },{passive:false});
+    dashBtn.addEventListener('touchend',function(e){
+      e.preventDefault();
+      dashBtn.classList.remove('pressed');
+    },{passive:false});
+    dashBtn.addEventListener('touchcancel',function(e){
+      dashBtn.classList.remove('pressed');
+    },{passive:false});
+
+    // ── CAMERA DRAG ZONE ──
+    const camZone = document.getElementById('camera-touch-zone');
+    camZone.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      if(touchCameraId !== null) return;
+      var t = e.changedTouches[0];
+      touchCameraId = t.identifier;
+      touchCameraLastX = t.clientX;
+      touchCameraLastY = t.clientY;
+    },{passive:false});
+
+    camZone.addEventListener('touchmove',function(e){
+      e.preventDefault();
+      for(var i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier === touchCameraId){
+          var t = e.changedTouches[i];
+          var dx = t.clientX - touchCameraLastX;
+          var dy = t.clientY - touchCameraLastY;
+          cameraTheta -= dx * 0.35;
+          cameraPhi = Math.max(10, Math.min(85, cameraPhi - dy * 0.25));
+          touchCameraLastX = t.clientX;
+          touchCameraLastY = t.clientY;
+        }
+      }
+    },{passive:false});
+
+    function endCamera(e){
+      for(var i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier === touchCameraId){
+          touchCameraId = null;
+        }
+      }
+    }
+    camZone.addEventListener('touchend',endCamera,{passive:false});
+    camZone.addEventListener('touchcancel',endCamera,{passive:false});
+
+    // Prevent page scroll/zoom on touch controls
+    document.addEventListener('touchmove',function(e){
+      if(e.target.closest('#touch-controls')) e.preventDefault();
+    },{passive:false});
+  }
 
   window.onresize=()=>{
     camera.aspect=innerWidth/innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth,innerHeight);
+    if(isMobile) checkOrientation();
   };
 }
 
@@ -1582,6 +1949,11 @@ function triggerDash(){
   if(keys['KeyS']||keys['ArrowDown'])  { ddx-=fx; ddz-=fz; hasDirInput=true; }
   if(keys['KeyA']||keys['ArrowLeft'])  { ddx+=rx; ddz+=rz; hasDirInput=true; }
   if(keys['KeyD']||keys['ArrowRight']) { ddx-=rx; ddz-=rz; hasDirInput=true; }
+  if(isMobile && (Math.abs(touchJoystickX)>0.15 || Math.abs(touchJoystickY)>0.15)){
+    ddx += -touchJoystickY*fx - touchJoystickX*rx;
+    ddz += -touchJoystickY*fz - touchJoystickX*rz;
+    hasDirInput = true;
+  }
   if(hasDirInput){
     const len = Math.sqrt(ddx*ddx+ddz*ddz)||1;
     dx=ddx/len; dz=ddz/len;
@@ -1834,6 +2206,10 @@ function animate(){
   if(keys['KeyS']||keys['ArrowDown'])  { mx-=fx*MOVE_SPEED; mz-=fz*MOVE_SPEED; }
   if(keys['KeyA']||keys['ArrowLeft'])  { mx+=rx*MOVE_SPEED; mz+=rz*MOVE_SPEED; }
   if(keys['KeyD']||keys['ArrowRight']) { mx-=rx*MOVE_SPEED; mz-=rz*MOVE_SPEED; }
+  if(isMobile && (Math.abs(touchJoystickX)>0.15 || Math.abs(touchJoystickY)>0.15)){
+    mx += (-touchJoystickY*fx - touchJoystickX*rx)*MOVE_SPEED;
+    mz += (-touchJoystickY*fz - touchJoystickX*rz)*MOVE_SPEED;
+  }
 
   playerSprite.position.x+=mx;
   playerSprite.position.z+=mz;
@@ -2026,6 +2402,36 @@ function animate(){
     playerSprite.position.y + 2.4,
     playerSprite.position.z
   );
+
+  // Player glow aura
+  if(playerGlow){
+    playerGlow.position.set(playerSprite.position.x, playerSprite.position.y, playerSprite.position.z);
+    playerGlow.material.opacity = 0.12 + Math.sin(gt*2.5)*0.04;
+  }
+
+  // Sky dome follows player
+  if(skyDome) skyDome.position.copy(playerSprite.position);
+
+  // Ambient particles — follow player loosely
+  ambientParticles.forEach(function(ap){
+    ap.position.y += Math.sin(gt*ap.userData.floatSpd+ap.userData.floatOff)*0.003;
+    ap.position.x += ap.userData.driftX;
+    if(Math.abs(ap.position.x - playerSprite.position.x) > 35){
+      ap.position.x = playerSprite.position.x + (Math.random()-0.5)*50;
+      ap.position.y = playerSprite.position.y + Math.random()*20 - 5;
+    }
+    if(Math.abs(ap.position.z - playerSprite.position.z) > 35){
+      ap.position.z = playerSprite.position.z + (Math.random()-0.5)*50;
+      ap.position.y = playerSprite.position.y + Math.random()*20 - 5;
+    }
+  });
+
+  // Mobile dash button cooldown visual
+  if(isMobile){
+    var dashBtnEl = document.getElementById('touch-dash-btn');
+    if(dashCooldownTimer > 0) dashBtnEl.classList.add('on-cooldown');
+    else dashBtnEl.classList.remove('on-cooldown');
+  }
 
   updateHUD();
 
