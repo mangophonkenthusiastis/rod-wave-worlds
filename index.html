@@ -8,7 +8,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-serif; cursor:default; }
+body {
+  overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-serif; cursor:default;
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
+}
 
 /* ═══════════════════════════════
    MENU
@@ -18,6 +22,8 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   display:flex; flex-direction:column;
   align-items:center; justify-content:center;
   overflow:hidden;
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
 }
 
 /* Animated gradient sky background */
@@ -244,7 +250,7 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
 /* ═══════════════════════════════
    HUD
 ═══════════════════════════════ */
-#hud { position:fixed; inset:0; z-index:10; pointer-events:none; display:none; }
+#hud { position:fixed; inset:0; z-index:10; pointer-events:none; display:none; height:100dvh; height:calc(var(--vh,1vh)*100); }
 
 #stage-pill {
   position:absolute; top:20px; left:50%; transform:translateX(-50%);
@@ -296,6 +302,8 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   background:rgba(255,20,20,0.4);
   opacity:0; pointer-events:none;
   transition:opacity 0.08s;
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
 }
 
 /* Dash flash */
@@ -308,6 +316,8 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
     transparent 80%);
   opacity:0; pointer-events:none;
   transition:opacity 0.05s;
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
 }
 
 /* Dash indicator */
@@ -347,6 +357,8 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   display:none; flex-direction:column;
   align-items:center; justify-content:center; gap:18px;
   background:rgba(0,0,0,0.88);
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
 }
 #win-screen h2 {
   font-family:'Bebas Neue'; font-size:90px;
@@ -377,6 +389,8 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   color:#c9a84c;
   font-family:'Bebas Neue',sans-serif;
   text-align:center;
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
 }
 #portrait-overlay .rotate-icon {
   font-size:60px;
@@ -404,6 +418,8 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   position:fixed; inset:0; z-index:15;
   pointer-events:none;
   display:none;
+  height:100dvh;
+  height:calc(var(--vh,1vh)*100);
 }
 #joystick-zone {
   position:absolute; bottom:20px; left:20px;
@@ -473,12 +489,6 @@ body { overflow:hidden; background:#000; font-family:'Barlow Condensed',sans-ser
   border-color:rgba(100,180,255,0.15);
   box-shadow:none;
   opacity:0.45;
-}
-#camera-touch-zone {
-  position:absolute; top:0; right:0;
-  width:50%; height:calc(100% - 170px);
-  pointer-events:all;
-  touch-action:none;
 }
 
 /* ═══════════════════════════════
@@ -606,7 +616,6 @@ canvas.game-canvas {
 
 <!-- Virtual Touch Controls (Mobile) -->
 <div id="touch-controls">
-  <div id="camera-touch-zone"></div>
   <div id="joystick-zone">
     <div id="joystick-base"></div>
     <div id="joystick-thumb"></div>
@@ -629,6 +638,13 @@ canvas.game-canvas {
 <audio id="track2" src="https://archive.org/download/diddy-ave-married/diddy%20ave%20married.mp3" crossorigin="anonymous"></audio>
 
 <script>
+/* ── DYNAMIC VIEWPORT HEIGHT — fix for mobile browser chrome ── */
+function setVH(){
+  document.documentElement.style.setProperty('--vh',(window.innerHeight*0.01)+'px');
+}
+setVH();
+window.addEventListener('resize',setVH);
+
 /* ═══════════════════════════════════════
    MENU SETUP — stars + particles
 ═══════════════════════════════════════ */
@@ -1696,41 +1712,47 @@ function setupControls(){
       dashBtn.classList.remove('pressed');
     },{passive:false});
 
-    // ── CAMERA DRAG ZONE ──
-    const camZone = document.getElementById('camera-touch-zone');
-    camZone.addEventListener('touchstart',function(e){
-      e.preventDefault();
-      if(touchCameraId !== null) return;
-      var t = e.changedTouches[0];
-      touchCameraId = t.identifier;
-      touchCameraLastX = t.clientX;
-      touchCameraLastY = t.clientY;
-    },{passive:false});
-
-    camZone.addEventListener('touchmove',function(e){
-      e.preventDefault();
+    // ── CAMERA DRAG — any touch not on joystick or buttons ──
+    document.addEventListener('touchstart',function(e){
       for(var i=0;i<e.changedTouches.length;i++){
-        if(e.changedTouches[i].identifier === touchCameraId){
-          var t = e.changedTouches[i];
-          var dx = t.clientX - touchCameraLastX;
-          var dy = t.clientY - touchCameraLastY;
-          cameraTheta -= dx * 0.35;
-          cameraPhi = Math.max(10, Math.min(85, cameraPhi - dy * 0.25));
-          touchCameraLastX = t.clientX;
-          touchCameraLastY = t.clientY;
+        var t=e.changedTouches[i];
+        var el=document.elementFromPoint(t.clientX,t.clientY);
+        if(el&&el.closest){
+          if(el.closest('#joystick-zone')||el.closest('#touch-buttons')) continue;
+        }
+        if(touchCameraId===null){
+          touchCameraId=t.identifier;
+          touchCameraLastX=t.clientX;
+          touchCameraLastY=t.clientY;
         }
       }
     },{passive:false});
 
-    function endCamera(e){
+    document.addEventListener('touchmove',function(e){
       for(var i=0;i<e.changedTouches.length;i++){
-        if(e.changedTouches[i].identifier === touchCameraId){
-          touchCameraId = null;
+        if(e.changedTouches[i].identifier===touchCameraId){
+          e.preventDefault();
+          var t=e.changedTouches[i];
+          var cdx=t.clientX-touchCameraLastX;
+          var cdy=t.clientY-touchCameraLastY;
+          cameraTheta-=cdx*0.35;
+          cameraPhi=Math.max(10,Math.min(85,cameraPhi-cdy*0.25));
+          touchCameraLastX=t.clientX;
+          touchCameraLastY=t.clientY;
+          break;
+        }
+      }
+    },{passive:false});
+
+    function endCameraGlobal(e){
+      for(var i=0;i<e.changedTouches.length;i++){
+        if(e.changedTouches[i].identifier===touchCameraId){
+          touchCameraId=null;
         }
       }
     }
-    camZone.addEventListener('touchend',endCamera,{passive:false});
-    camZone.addEventListener('touchcancel',endCamera,{passive:false});
+    document.addEventListener('touchend',endCameraGlobal,{passive:true});
+    document.addEventListener('touchcancel',endCameraGlobal,{passive:true});
 
     // Prevent page scroll/zoom on touch controls
     document.addEventListener('touchmove',function(e){
@@ -1739,6 +1761,7 @@ function setupControls(){
   }
 
   window.onresize=()=>{
+    setVH();
     camera.aspect=innerWidth/innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth,innerHeight);
