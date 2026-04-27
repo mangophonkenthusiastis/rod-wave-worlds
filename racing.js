@@ -72,6 +72,7 @@ function initRace() {
   buildRaceTrack();
   spawnRaceKarts();
   spawnRaceItemBoxes();
+  if (typeof AbilityManager !== 'undefined') AbilityManager.init(raceState);
   setupRaceControls();
 
   if (isMobile) {
@@ -125,170 +126,44 @@ function restartRace() {
   raceState = null;
   window.removeEventListener('keydown', raceKeyDown);
   window.removeEventListener('keyup', raceKeyUp);
+  if (typeof AbilityManager !== 'undefined') AbilityManager.cleanup();
   initRace();
 }
 
-/* ─── TRACK BUILDER ─────────────────────────────────────────────── */
-function buildRaceTrack() {
-  const grass = new THREE.Mesh(
-    new THREE.PlaneGeometry(1200, 1200),
-    new THREE.MeshPhongMaterial({ color: 0x4aaa4a })
-  );
-  grass.rotation.x = -Math.PI / 2;
-  grass.position.y = -0.05;
-  grass.receiveShadow = true;
-  scene.add(grass);
+/* ─── STATE BRIDGE ───────────────────────────────────────────────────
+   switchState('OBBY') — tears down the race scene and hands control
+   to ObbyManager so the player can transition mid-session without a
+   full page reload.
+   ─────────────────────────────────────────────────────────────────── */
+function switchState(target) {
+  if (target !== 'OBBY') return;
 
-  const anchors = [
-    { x: 0,    z: 0   },
-    { x: 100,  z: 0   },
-    { x: 150,  z: 50  },
-    { x: 150,  z: 150 },
-    { x: 100,  z: 200 },
-    { x: 0,    z: 200 },
-    { x: -50,  z: 250 },
-    { x: -150, z: 250 },
-    { x: -200, z: 200 },
-    { x: -200, z: 100 },
-    { x: -150, z: 50  },
-    { x: -50,  z: 0   },
-  ];
-  raceState.waypoints = anchors;
+  // 1. Stop race loop and clean up race resources
+  if (animFrameId) { cancelAnimationFrame(animFrameId); animFrameId = null; }
+  window.removeEventListener('keydown', raceKeyDown);
+  window.removeEventListener('keyup',   raceKeyUp);
+  if (typeof AbilityManager !== 'undefined') AbilityManager.cleanup();
+  raceState = null;
 
-  const curvePoints = anchors.map(p => new THREE.Vector3(p.x, 0, p.z));
-  const curve = new THREE.CatmullRomCurve3(curvePoints, true);
-  raceState.trackCurve = curve;
-
-  const resolution = 300;
-  const trackPoints = curve.getPoints(resolution);
-  const trackMat    = new THREE.MeshPhongMaterial({ color: 0x333333, shininess: 15 });
-  const rumbleMatA  = new THREE.MeshPhongMaterial({ color: 0xe04040 });
-  const rumbleMatB  = new THREE.MeshPhongMaterial({ color: 0xf5f5f5 });
-  const barrierMat  = new THREE.MeshPhongMaterial({ color: 0x888888, shininess: 40 });
-
-  for (let i = 0; i < trackPoints.length; i++) {
-    const p1 = trackPoints[i];
-    const p2 = trackPoints[(i + 1) % trackPoints.length];
-    const dx = p2.x - p1.x, dz = p2.z - p1.z;
-    const len = Math.sqrt(dx * dx + dz * dz);
-    const angle = Math.atan2(dx, dz);
-    const midX = (p1.x + p2.x) / 2, midZ = (p1.z + p2.z) / 2;
-
-    const seg = new THREE.Mesh(
-      new THREE.BoxGeometry(RACE_CONFIG.trackWidth + 0.2, 0.2, len + 0.3),
-      trackMat
-    );
-    seg.position.set(midX, 0, midZ);
-    seg.rotation.y = angle;
-    seg.receiveShadow = true;
-    scene.add(seg);
-    raceState.trackMeshes.push(seg);
-
-    const perpX = Math.cos(angle), perpZ = -Math.sin(angle);
-    const off = RACE_CONFIG.trackWidth / 2 + 0.4;
-    for (let side of [-1, 1]) {
-      const barrier = new THREE.Mesh(
-        new THREE.BoxGeometry(1.0, 1.2, len + 0.4),
-        barrierMat
-      );
-      barrier.position.set(midX + perpX * off * side, 0.5, midZ + perpZ * off * side);
-      barrier.rotation.y = angle;
-      scene.add(barrier);
-
-      if (i % 5 === 0) {
-        const r = new THREE.Mesh(
-          new THREE.BoxGeometry(1.4, 0.25, len * 5.1),
-          (Math.floor(i / 5)) % 2 === 0 ? rumbleMatA : rumbleMatB
-        );
-        r.position.set(midX + perpX * (off - 0.7) * side, 0.05, midZ + perpZ * (off - 0.7) * side);
-        r.rotation.y = angle;
-        scene.add(r);
-      }
-    }
-
-    if (i % 50 === 15) {
-      const boostPad = new THREE.Mesh(
-        new THREE.PlaneGeometry(RACE_CONFIG.trackWidth * 0.85, 6),
-        new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
-      );
-      boostPad.rotation.x = -Math.PI / 2;
-      boostPad.rotation.z = -angle;
-      boostPad.position.set(midX, 0.16, midZ);
-      scene.add(boostPad);
-      raceState.boostRamps.push({ x: midX, z: midZ, angle });
-    }
+  // 2. Tear down renderer canvas (init() will rebuild it)
+  if (renderer && renderer.domElement && renderer.domElement.parentNode) {
+    renderer.domElement.parentNode.removeChild(renderer.domElement);
   }
+  renderer = null; scene = null; camera = null;
 
-  // Start / finish line
-  const sfGroup = new THREE.Group();
-  for (let i = 0; i < 10; i++) {
-    for (let j = 0; j < 2; j++) {
-      const c = new THREE.Mesh(
-        new THREE.BoxGeometry(RACE_CONFIG.trackWidth / 10, 0.25, 1),
-        new THREE.MeshPhongMaterial({ color: (i + j) % 2 === 0 ? 0x000000 : 0xffffff })
-      );
-      c.position.set(-RACE_CONFIG.trackWidth / 2 + i * (RACE_CONFIG.trackWidth / 10) + (RACE_CONFIG.trackWidth / 20), 0.1, -0.5 + j * 1);
-      sfGroup.add(c);
-    }
-  }
-  sfGroup.position.set(anchors[0].x, 0.05, anchors[0].z);
-  const firstAngle = Math.atan2(anchors[1].x - anchors[0].x, anchors[1].z - anchors[0].z);
-  sfGroup.rotation.y = firstAngle;
-  scene.add(sfGroup);
+  // 3. Swap HUD visibility
+  document.getElementById('race-hud').style.display  = 'none';
+  document.getElementById('race-finish').style.display = 'none';
+  document.getElementById('race-countdown').classList.remove('active');
+  document.getElementById('hud').style.display = 'block';
 
-  const gantryMat = new THREE.MeshPhongMaterial({ color: 0xffcc00, emissive: 0xff9900, emissiveIntensity: 0.2 });
-  const gantryX = anchors[0].x, gantryZ = anchors[0].z;
-  const perpXg = Math.cos(firstAngle), perpZg = -Math.sin(firstAngle);
-  for (let side of [-1, 1]) {
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 10, 12), gantryMat);
-    pole.position.set(gantryX + perpXg * (RACE_CONFIG.trackWidth / 2 + 2.5) * side, 5, gantryZ + perpZg * (RACE_CONFIG.trackWidth / 2 + 2.5) * side);
-    scene.add(pole);
-  }
-  const banner = new THREE.Mesh(new THREE.BoxGeometry(RACE_CONFIG.trackWidth + 5, 2.5, 0.5), gantryMat);
-  banner.position.set(gantryX, 9, gantryZ);
-  banner.rotation.y = firstAngle;
-  scene.add(banner);
-  const bannerText = makeTextSprite('ROD WAVE WORLD GP', '#000');
-  bannerText.scale.set(14, 2.2, 1);
-  bannerText.position.set(gantryX + Math.sin(firstAngle) * 0.3, 9, gantryZ + Math.cos(firstAngle) * 0.3);
-  bannerText.rotation.y = firstAngle;
-  scene.add(bannerText);
-
-  for (let i = 0; i < 200; i++) {
-    const ang = Math.random() * Math.PI * 2;
-    const r = 160 + Math.random() * 450;
-    spawnTree(Math.cos(ang) * r, Math.sin(ang) * r);
-  }
+  // 4. Switch mode flag and start obby
+  currentMode = 'obby';
+  hasWon      = false;
+  init();   // index.html init() → ObbyManager.init() → animate()
 }
 
-function spawnTree(x, z) {
-  const trunk = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.3, 0.4, 2, 6),
-    new THREE.MeshPhongMaterial({ color: 0x5a3a22 })
-  );
-  trunk.position.set(x, 1, z);
-  scene.add(trunk);
-  const leaves = new THREE.Mesh(
-    new THREE.ConeGeometry(1.8, 3.5, 7),
-    new THREE.MeshPhongMaterial({ color: 0x2c8a3a })
-  );
-  leaves.position.set(x, 3.5, z);
-  leaves.castShadow = true;
-  scene.add(leaves);
-}
-
-function makeTextSprite(text, color) {
-  const c = document.createElement('canvas');
-  c.width = 512; c.height = 80;
-  const ctx = c.getContext('2d');
-  ctx.font = 'bold 52px "Bebas Neue", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = color;
-  ctx.fillText(text, 256, 40);
-  const tex = new THREE.CanvasTexture(c);
-  return new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true }));
-}
+/* buildRaceTrack, spawnTree, makeTextSprite → see mapGenerator.js */
 
 /* ─── KART SPAWN ────────────────────────────────────────────────── */
 function spawnRaceKarts() {
@@ -430,6 +305,11 @@ function createRaceKart(data) {
     position:    1,
     aiSkill:     data.aiSkill || 1,
     aiTargetOffset: (Math.random() - 0.5) * 3,
+    // ── Ability state (managed by abilityManager.js) ─────────────────
+    ability:         null,   // current held ability key (string | null)
+    abilityCooldown: 0,      // seconds remaining on cooldown
+    phaseShift:      0,      // Phase Shift active timer
+    overclock:       0,      // Overclock active timer
     wheels,
     sprite,
   };
@@ -500,6 +380,7 @@ function raceKeyDown(e) {
   racePlayerKeys[e.code] = true;
   if (e.code === 'Space') e.preventDefault();
   if (e.code === 'KeyQ') usePlayerItem();
+  if (e.code === 'KeyE' && typeof AbilityManager !== 'undefined') AbilityManager.usePlayerAbility();
 }
 function raceKeyUp(e) { racePlayerKeys[e.code] = false; }
 
@@ -707,80 +588,7 @@ function updatePositions() {
   ks.forEach((k, i) => { k.position = i + 1; });
 }
 
-/* ─── BOT AI (buffed) ───────────────────────────────────────────── */
-function updateBotKart(k, delta) {
-  if (k.stunnedTimer > 0) {
-    k.stunnedTimer -= delta;
-    k.vel *= Math.pow(0.3, delta);   // bleed speed through vel, not vx/vz directly
-    k.engineForce = 0;
-    return;
-  }
-
-  const numDirs = 12;
-  const interestMap = new Array(numDirs).fill(0);
-  const dangerMap   = new Array(numDirs).fill(0);
-  const target = raceState.waypoints[k.nextWp];
-  const toTarget = new THREE.Vector2(target.x - k.pos.x, target.z - k.pos.z).normalize();
-
-  if (!k.aiVariance) k.aiVariance = (Math.random() - 0.5) * 0.2; // tighter variance (was 0.3)
-  const variedTarget = toTarget.clone().rotateAround(new THREE.Vector2(0, 0), k.aiVariance);
-
-  for (let i = 0; i < numDirs; i++) {
-    const angle = (i / numDirs) * Math.PI * 2;
-    const dir = new THREE.Vector2(Math.sin(angle), Math.cos(angle));
-    interestMap[i] = Math.max(0, dir.dot(variedTarget));
-    raceState.karts.forEach(other => {
-      if (other === k) return;
-      const toOther = new THREE.Vector2(other.pos.x - k.pos.x, other.pos.z - k.pos.z);
-      const dist = toOther.length();
-      if (dist < 10) {
-        const weight = (10 - dist) / 10;
-        dangerMap[i] = Math.max(dangerMap[i], dir.dot(toOther.normalize()) * weight * 0.9);
-      }
-    });
-    const checkPos = { x: k.pos.x + dir.x * 8, z: k.pos.z + dir.y * 8 };
-    if (nearestTrackDistance(checkPos.x, checkPos.z) > RACE_CONFIG.trackWidth / 2 - 2) {
-      dangerMap[i] = Math.max(dangerMap[i], 1.0);
-    }
-  }
-
-  let bestDirIdx = 0, bestScore = -Infinity;
-  for (let i = 0; i < numDirs; i++) {
-    const score = interestMap[i] - dangerMap[i];
-    if (score > bestScore) { bestScore = score; bestDirIdx = i; }
-  }
-
-  const chosenAngle = (bestDirIdx / numDirs) * Math.PI * 2;
-  let angleDiff = chosenAngle - k.angle;
-  while (angleDiff > Math.PI)  angleDiff -= Math.PI * 2;
-  while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-  k.steering = Math.max(-1, Math.min(1, angleDiff * 4));
-
-  // Smart item usage
-  if (k.powerup) {
-    const straightness = variedTarget.dot(new THREE.Vector2(Math.sin(k.angle), Math.cos(k.angle)));
-    if ((k.powerup.includes('mushroom') || k.powerup === 'star') && straightness > 0.95) {
-      if (Math.random() < 0.05) { useItem(k, k.powerup); k.powerup = null; }
-    }
-    if (k.powerup === 'shell' || k.powerup === 'blue_shell') {
-      const player = raceState.karts[0];
-      const toPlayer = new THREE.Vector2(player.pos.x - k.pos.x, player.pos.z - k.pos.z);
-      if (toPlayer.length() < 40 && toPlayer.normalize().dot(new THREE.Vector2(Math.sin(k.angle), Math.cos(k.angle))) > 0.98) {
-        useItem(k, k.powerup); k.powerup = null;
-      }
-    }
-    if (k.powerup === 'shield' && !k.shieldTimer) { useItem(k, 'shield'); k.powerup = null; }
-  }
-
-  // ── Throttle: ease off in sharp corners ─────────────────────────
-  let throttle = 1.0;
-  if (Math.abs(k.steering) > 0.65) throttle = 0.75;
-  throttle *= k.aiSkill;
-
-  // ── Set physics inputs only — updateKartPhysics handles the rest ─
-  k.engineForce = RACE_CONFIG.accel * throttle;
-  // k.steering is already set above from the context-steering result
-}
+/* updateBotKart → replaced by advancedBotUpdate in botAI.js */
 
 /* ─── KART PHYSICS — Vector-based model with Ackermann steering ──
    STATE:
@@ -792,10 +600,17 @@ function updateBotKart(k, delta) {
    k.vel / k.angle kept in sync for legacy AI + lap code.
    ─────────────────────────────────────────────────────────────── */
 function updateKartPhysics(k, delta) {
-  const cfg      = RACE_CONFIG;
-  const topSpeed = k.boostTimer > 0
+  const cfg = RACE_CONFIG;
+  let topSpeed = k.boostTimer > 0
     ? cfg.boostSpeed * (k.boostMultiplier || 1.4)
     : cfg.maxSpeed;
+
+  /* ── Ability hooks: Overclock (speed×2) + Phase Shift timer ────── */
+  if (typeof AbilityManager !== 'undefined') {
+    topSpeed = AbilityManager.getOverclockTopSpeed(k, topSpeed);
+    AbilityManager.tickPhaseShift(k, delta);
+    AbilityManager.tickOverclock(k, delta);
+  }
 
   // Ensure state is initialized (safe for old save-state references)
   if (k.speed   === undefined) k.speed       = k.vel   || 0;
@@ -829,7 +644,9 @@ function updateKartPhysics(k, delta) {
     const highSpeedCap = Math.max(0.5, 1.0 - (absSpeed / topSpeed) * 0.45);
     const driftMul     = k.drifting ? cfg.driftTurnBonus : 1.0;
     const reverseSign  = k.speed < 0 ? -1 : 1;  // flip steer when reversing
-    k.heading += k.steering * cfg.turnRate * speedRamp * highSpeedCap * driftMul * reverseSign * delta;
+    // Overclock makes steering 50% more sensitive (slippery high-speed handling)
+    const overclockTurn = (typeof AbilityManager !== 'undefined') ? AbilityManager.getOverclockTurnMul(k) : 1.0;
+    k.heading += k.steering * cfg.turnRate * speedRamp * highSpeedCap * driftMul * reverseSign * overclockTurn * delta;
   }
 
   /* ── 5. FORWARD VECTOR ──────────────────────────────────────────
@@ -877,7 +694,10 @@ function updateKartPhysics(k, delta) {
   const distToCenter = nearestTrackDistance(nextX, nextZ);
   const halfTrack    = cfg.trackWidth / 2;
 
-  if (distToCenter > halfTrack + 0.8) {
+  // Phase Shift: kart is intangible — skip wall collision entirely
+  const phaseActive = (typeof AbilityManager !== 'undefined') && AbilityManager.isPhaseActive(k);
+
+  if (!phaseActive && distToCenter > halfTrack + 0.8) {
     // Hard wall: push kart back inside, kill speed
     const wps = raceState.waypoints;
     let bestD = Infinity, nearestP = { x: 0, z: 0 };
@@ -1041,11 +861,13 @@ function updatePlayerKart(k, delta) {
   if (racePlayerKeys['KeyW'] || racePlayerKeys['ArrowUp'])   throttleInput += 1;
   if (racePlayerKeys['KeyS'] || racePlayerKeys['ArrowDown']) throttleInput -= 1;
   let steerInput = 0;
-  if (racePlayerKeys['KeyA'] || racePlayerKeys['ArrowLeft'])  steerInput -= 1;
-  if (racePlayerKeys['KeyD'] || racePlayerKeys['ArrowRight']) steerInput += 1;
+  // Sign convention: positive k.steering → k.heading increases → car turns CCW from above
+  // = screen-LEFT from behind-the-car camera. So A (left) = +1, D (right) = -1.
+  if (racePlayerKeys['KeyA'] || racePlayerKeys['ArrowLeft'])  steerInput += 1;
+  if (racePlayerKeys['KeyD'] || racePlayerKeys['ArrowRight']) steerInput -= 1;
   if (isMobile) {
     if (Math.abs(touchJoystickY) > 0.15) throttleInput -= touchJoystickY;
-    if (Math.abs(touchJoystickX) > 0.15) steerInput   += touchJoystickX;
+    if (Math.abs(touchJoystickX) > 0.15) steerInput   -= touchJoystickX; // joystick-right → screen-right → heading-
   }
   steerInput = Math.max(-1, Math.min(1, steerInput));
 
@@ -1196,13 +1018,14 @@ function animateRace() {
       }
       if (k.invincibleTimer > 0) k.invincibleTimer = Math.max(0, k.invincibleTimer - delta);
       if (k.isPlayer) updatePlayerKart(k, delta);
-      else            updateBotKart(k, delta);
+      else            advancedBotUpdate(k, delta);  // botAI.js
     }
     updateKartPhysics(k, delta);
     if (!k.finished) updateLapProgress(k);
   });
 
   if (raceState.started) handleRaceCollisions(delta);
+  if (typeof AbilityManager !== 'undefined') AbilityManager.update(delta);
   updatePositions();
 
   // ── Race end check ──
