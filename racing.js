@@ -695,14 +695,16 @@ function snapRaceKartToGround(k) {
   if (!targets || !targets.length) return;
   const height = k.groundSnapHeight === undefined ? 1.2 : k.groundSnapHeight;
   const centerOffset = k.groundCenterOffset === undefined ? height * 0.5 : k.groundCenterOffset;
-  _raceGroundRayOrigin.set(k.pos.x, k.pos.y + centerOffset, k.pos.z);
+  const currentCenterY = k.pos.y + centerOffset;
+  _raceGroundRayOrigin.set(k.pos.x, currentCenterY, k.pos.z);
   _raceGroundRaycaster.set(_raceGroundRayOrigin, _raceGroundRayDir);
   _raceGroundRaycaster.near = 0;
   _raceGroundRaycaster.far = 3;
   const hits = _raceGroundRaycaster.intersectObjects(targets, false);
   if (!hits.length) return;
-  const targetY = hits[0].point.y + (height * 0.5) - centerOffset;
-  k.pos.y = THREE.MathUtils.lerp(k.pos.y, targetY, 0.2);
+  const targetCenterY = hits[0].point.y + (height * 0.5);
+  const snappedCenterY = THREE.MathUtils.lerp(currentCenterY, targetCenterY, 0.2);
+  k.pos.y = snappedCenterY - centerOffset;
 }
 
 function updateEvilBreathingTrack() {

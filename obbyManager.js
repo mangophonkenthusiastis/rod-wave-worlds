@@ -1151,12 +1151,14 @@ const ObbyManager = (function () {
       if (_ps && _isGrounded) {
         const d = Math.hypot(_ps.position.x - bp.x, _ps.position.z - bp.z);
         if (d < 2.8 && Math.abs(_ps.position.y - FOOT - bp.y) < 1.0) {
-          // Launch in pad's stored direction at full power
-          _constantVelocity.x = bp.ndx * bp.launchSpd;
-          _constantVelocity.z = bp.ndz * bp.launchSpd;
+          // Launch with a local Vector3(0, 15, 45) impulse rotated into the pad direction.
+          const launch = new THREE.Vector3(0, bp.upSpd, bp.launchSpd)
+            .applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(bp.ndx, bp.ndz));
+          _constantVelocity.x = launch.x;
+          _constantVelocity.z = launch.z;
           _vel.x = _constantVelocity.x;
           _vel.z = _constantVelocity.z;
-          _vel.y = bp.upSpd;
+          _vel.y = launch.y;
           _inputLockT = 0.5;
           _isGrounded = false;
           if (typeof tryEvilScreamer === 'function') tryEvilScreamer(0.02);
@@ -1354,6 +1356,7 @@ const ObbyManager = (function () {
 
   function _respawn() {
     _obbySound('death');
+    if (typeof tryEvilScreamer === 'function') tryEvilScreamer(0.02);
     _deathCount += 1;
     _ps.position.copy(_respawnPoint);
     _vel.set(0, 0, 0);
@@ -1567,7 +1570,7 @@ const ObbyManager = (function () {
   }
 
   function _createPlayer() {
-    const tex = new THREE.TextureLoader().load('https://i.postimg.cc/6pzzgj5j/39-Rod-Wave-1200x834-2.webp');
+    const tex = new THREE.TextureLoader().load('./assets/Evil_RodWave.png');
     _ps = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
     _ps.scale.set(2.2, 3.3, 1);
     _ps.position.copy(SPAWN);

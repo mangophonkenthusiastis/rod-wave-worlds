@@ -124,7 +124,6 @@ function buildRaceTrack() {
     previousExitGate = exitGate;
     if (_boxIntersectsAny(segBox, obbyBoxes)) {
       seg.geometry.dispose();
-      if (seg.material && seg.material.dispose) seg.material.dispose();
       return null;
     }
     scene.add(seg);
