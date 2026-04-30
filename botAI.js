@@ -151,6 +151,28 @@ function advancedBotUpdate(k, delta) {
   if (Math.abs(k.steering) > 0.50) throttle = 0.84;
   if (Math.abs(k.steering) > 0.78) throttle = 0.66;
   throttle    *= k.aiSkill;
+
+  /* ══════════════════════════════════════════════════════════════
+     4b. RUBBER-BAND — close the gap when far behind, ease off
+         when dominating so races stay competitive.
+         progressGap > 0  = bot is BEHIND player
+         progressGap < 0  = bot is AHEAD of player              */
+  if (raceState.karts.length > 0) {
+    const playerProgress = raceState.karts[0].progress || 0;
+    const botProgress    = k.progress || 0;
+    const progressGap    = playerProgress - botProgress;
+
+    if (progressGap > 0.15) {
+      // Behind: up to +38% extra throttle, more the further back
+      const boost = Math.min(0.38, progressGap * 0.55);
+      throttle *= (1.0 + boost);
+    } else if (progressGap < -0.20) {
+      // Ahead: gentle reduction, max -15% so they stay fun to race
+      const reduce = Math.min(0.15, (-progressGap) * 0.18);
+      throttle *= (1.0 - reduce);
+    }
+  }
+
   k.engineForce = RACE_CONFIG.accel * throttle;
 
   /* ══════════════════════════════════════════════════════════════
@@ -182,4 +204,5 @@ function advancedBotUpdate(k, delta) {
   if (k.ability && typeof AbilityManager !== 'undefined') {
     AbilityManager.botUseAbility(k);
   }
+  if (typeof snapRaceKartToGround === 'function') snapRaceKartToGround(k);
 }
