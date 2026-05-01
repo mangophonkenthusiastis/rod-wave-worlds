@@ -346,7 +346,11 @@ function createRaceKart(data) {
   });
 
   const loader = new THREE.TextureLoader();
-  const tex = loader.load('./assets/Evil_RodWave.png');
+  const tex = loader.load(
+    (typeof PLAYER_SPRITE_URL !== 'undefined')
+      ? PLAYER_SPRITE_URL
+      : 'https://i.postimg.cc/6pzzgj5j/39-Rod-Wave-1200x834-2.webp'
+  );
   const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
   if (!data.isPlayer) {
     spriteMat.color = new THREE.Color(data.color).lerp(new THREE.Color(0xffffff), 0.3);

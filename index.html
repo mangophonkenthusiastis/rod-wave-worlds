@@ -534,6 +534,232 @@ body {
 #menu.evil-mode .menu-footer { color: rgba(160,0,0,0.18); letter-spacing:4px; }
 #menu.evil-mode .menu-center { animation: evilBreath 4s ease-in-out 1s infinite; }
 
+/* Underground goat picker */
+#underground-picker {
+  position:fixed; inset:0; z-index:320;
+  display:none; align-items:center; justify-content:center;
+  background:
+    linear-gradient(90deg, rgba(255,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,0,0,0.035) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 20%, rgba(140,0,0,0.36), transparent 44%),
+    radial-gradient(ellipse at 50% 78%, rgba(201,168,76,0.12), transparent 46%),
+    #020000;
+  background-size:52px 52px, 52px 52px, auto, auto, auto;
+  overflow:hidden;
+}
+#underground-picker::before,
+#underground-picker::after {
+  content:'';
+  position:absolute;
+  pointer-events:none;
+}
+#underground-picker::before {
+  inset:5vh 6vw;
+  border:1px solid rgba(201,168,76,0.22);
+  box-shadow:0 0 80px rgba(180,0,0,0.18), inset 0 0 60px rgba(120,0,0,0.18);
+}
+#underground-picker::after {
+  inset:0;
+  background:repeating-linear-gradient(0deg, transparent 0 4px, rgba(0,0,0,0.2) 4px 5px);
+  opacity:0.45;
+}
+.ug-panel {
+  position:relative;
+  z-index:1;
+  width:min(96vw, 1040px);
+  max-height:94vh;
+  border:1px solid rgba(201,168,76,0.58);
+  background:linear-gradient(180deg, rgba(12,0,0,0.96), rgba(2,0,0,0.94));
+  padding:34px;
+  box-shadow:0 0 90px rgba(140,0,0,0.45), inset 0 1px 0 rgba(201,168,76,0.18);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.ug-panel::before,
+.ug-panel::after {
+  content:'';
+  position:absolute;
+  width:54px;
+  height:54px;
+  border-color:#c9a84c;
+  border-style:solid;
+  pointer-events:none;
+}
+.ug-panel::before { top:-1px; left:-1px; border-width:3px 0 0 3px; }
+.ug-panel::after { right:-1px; bottom:-1px; border-width:0 3px 3px 0; }
+.ug-title {
+  font-family:'Bebas Neue';
+  font-size:clamp(46px, 8vw, 92px);
+  letter-spacing:4px;
+  color:#f0d080;
+  text-align:center;
+  line-height:0.95;
+  margin-bottom:8px;
+  text-shadow:0 0 34px rgba(201,168,76,0.34), 0 4px 0 #000;
+}
+.ug-subtitle {
+  font-size:11px;
+  letter-spacing:6px;
+  text-transform:uppercase;
+  color:rgba(201,168,76,0.48);
+  margin-bottom:24px;
+}
+.ug-grid {
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0, 1fr));
+  gap:16px;
+}
+.ug-card {
+  position:relative;
+  min-height:260px;
+  border:1px solid var(--ug-edge, rgba(201,168,76,0.35));
+  background:
+    var(--ug-icon) center 42%/min(86%, 190px) auto no-repeat,
+    linear-gradient(145deg, var(--ug-bg1), var(--ug-bg2));
+  color:#f2e6c8;
+  cursor:pointer;
+  font-family:'Bebas Neue';
+  letter-spacing:2px;
+  font-size:clamp(22px, 3vw, 34px);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:flex-end;
+  padding:18px 12px 16px;
+  text-shadow:0 2px 8px #000;
+  transition:transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+  overflow:hidden;
+}
+.ug-card::before,
+.ug-card::after {
+  content:'';
+  position:absolute;
+  inset:9px;
+  pointer-events:none;
+  border:1px solid var(--ug-ring);
+  opacity:0.76;
+}
+.ug-card::after {
+  inset:17px;
+  border-style:dashed;
+  opacity:0.28;
+}
+.ug-card-name {
+  position:relative;
+  z-index:1;
+  width:100%;
+  text-align:center;
+}
+.ug-card[data-goat="Bleood"] {
+  --ug-icon:url('./assets/bleood_icon.png');
+  --ug-bg1:#240000;
+  --ug-bg2:#020000;
+  --ug-edge:#ff2b2b;
+  --ug-ring:rgba(255,35,35,0.82);
+  --ug-tag:#ff6b6b;
+  border-radius:26px 4px 26px 4px;
+  box-shadow:inset 0 0 0 2px rgba(255,0,0,0.14);
+}
+.ug-card[data-goat="Bleood"]::before {
+  border-radius:42% 10% 45% 14%;
+  border-width:2px;
+  border-left-style:dashed;
+  transform:rotate(-1.5deg);
+}
+.ug-card[data-goat="Bleood"]::after {
+  border-radius:18% 45% 16% 40%;
+  border-style:solid;
+  border-width:1px;
+  box-shadow:
+    12px -10px 0 -10px #ff2b2b,
+    -14px 12px 0 -11px #ff2b2b,
+    inset 0 0 18px rgba(255,0,0,0.22);
+  transform:rotate(1.5deg);
+}
+.ug-card[data-goat="Ohsxnta"] {
+  --ug-icon:url('./assets/ohsxnta_icon.png');
+  --ug-bg1:#001c16;
+  --ug-bg2:#000208;
+  --ug-edge:#38ffbc;
+  --ug-ring:rgba(56,255,188,0.72);
+  --ug-tag:#9dffe1;
+  border-radius:4px 32px 4px 32px;
+}
+.ug-card[data-goat="Ohsxnta"]::before {
+  border-radius:6px 28px 6px 28px;
+}
+.ug-card[data-goat="Ohsxnta"]::after {
+  border-radius:30px 6px 30px 6px;
+}
+.ug-card[data-goat="1oneam"] {
+  --ug-icon:url('./assets/1oneam_icon.png');
+  --ug-bg1:#020b25;
+  --ug-bg2:#000000;
+  --ug-edge:#7cc7ff;
+  --ug-ring:rgba(124,199,255,0.78);
+  --ug-tag:#b9dcff;
+  border-radius:10px;
+}
+.ug-card[data-goat="1oneam"]::before {
+  border-radius:16px;
+  transform:skewX(-2deg);
+}
+.ug-card[data-goat="1oneam"]::after {
+  border-radius:22px;
+  transform:skewX(2deg);
+}
+.ug-card[data-goat="prettifun"] {
+  --ug-icon:url('./assets/pretti_icon.gif');
+  --ug-bg1:#2b0036;
+  --ug-bg2:#06000a;
+  --ug-edge:#ff7adf;
+  --ug-ring:rgba(255,235,95,0.84);
+  --ug-tag:#ffd6f6;
+  background-size:min(86%, 190px) auto, auto;
+  border-radius:22px 4px 22px 4px;
+}
+.ug-card[data-goat="prettifun"]::before {
+  border-radius:28px 6px 28px 6px;
+}
+.ug-card[data-goat="prettifun"]::after {
+  border-radius:6px 28px 6px 28px;
+}
+.ug-card:hover,
+.ug-card.selected {
+  transform:translateY(-5px) scale(1.025);
+  border-color:var(--ug-ring);
+  box-shadow:0 0 28px var(--ug-ring), 0 18px 30px rgba(0,0,0,0.55);
+}
+.ug-play {
+  margin-top:26px;
+  width:min(420px, 82vw);
+  padding:17px 20px;
+  border:0;
+  background:linear-gradient(135deg, #c9a84c, #f0d080, #c9a84c);
+  color:#070000;
+  font-family:'Bebas Neue';
+  font-size:36px;
+  letter-spacing:5px;
+  cursor:pointer;
+  opacity:0.5;
+}
+.ug-play.ready { opacity:1; }
+@media (max-width: 980px) {
+  .ug-panel { width:min(94vw, 760px); }
+  .ug-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .ug-card { min-height:210px; }
+}
+@media (max-width: 680px) {
+  .ug-panel { padding:18px; max-height:96vh; }
+  .ug-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .ug-card { min-height:150px; background-size:min(82%, 120px) auto, auto; }
+  .ug-title { font-size:40px; }
+  .ug-subtitle { font-size:9px; letter-spacing:4px; margin-bottom:14px; }
+  .ug-play { margin-top:16px; font-size:30px; }
+}
+
 /* ── Ongoing ambient random flash — JS adds/removes this class ── */
 #menu.evil-flash::after {
   content:''; position:absolute; inset:0; z-index:450; pointer-events:none;
@@ -661,6 +887,70 @@ body.evil-tremor canvas.game-canvas {
   white-space:nowrap;
 }
 .hud-stat span { color:#c9a84c; }
+
+#underground-music-ui {
+  position:absolute;
+  right:calc(24px + env(safe-area-inset-right));
+  bottom:calc(26px + env(safe-area-inset-bottom));
+  width:min(clamp(240px, 26vw, 360px), calc(100vw - 40px));
+  display:none;
+  flex-direction:column;
+  gap:clamp(8px, 0.8vw, 12px);
+  padding:clamp(11px, 1.1vw, 16px) clamp(12px, 1.2vw, 18px) clamp(10px, 1vw, 14px);
+  background:linear-gradient(180deg, rgba(16,8,6,0.88), rgba(6,2,2,0.82));
+  border:1px solid rgba(185,152,98,0.42);
+  box-shadow:0 16px 40px rgba(0,0,0,0.4), inset 0 1px 0 rgba(233,208,166,0.12);
+  pointer-events:none;
+}
+#underground-music-ui.visible { display:flex; }
+#underground-music-kicker {
+  font-family:'Barlow Condensed';
+  font-size:clamp(9px, 0.65vw, 11px);
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:rgba(205,175,130,0.58);
+}
+#underground-music-title {
+  font-family:'Bebas Neue';
+  font-size:clamp(24px, 2vw, 36px);
+  letter-spacing:2px;
+  color:#f1e1bb;
+  line-height:0.92;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#underground-music-artist {
+  font-family:'Barlow Condensed';
+  font-size:clamp(11px, 0.9vw, 14px);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:rgba(215,194,154,0.7);
+}
+#underground-music-viz {
+  height:clamp(38px, 4.2vw, 58px);
+  display:flex;
+  align-items:flex-end;
+  gap:clamp(3px, 0.35vw, 5px);
+}
+.underground-music-bar {
+  flex:1;
+  min-height:6px;
+  border-radius:999px 999px 3px 3px;
+  background:linear-gradient(180deg, rgba(243,225,187,0.92), rgba(175,84,52,0.82));
+  transform-origin:center bottom;
+  transform:scaleY(0.18);
+  opacity:0.88;
+  box-shadow:0 0 12px rgba(168,95,55,0.24);
+}
+@media (max-width:768px),(max-height:560px) {
+  #underground-music-ui {
+    right:calc(12px + env(safe-area-inset-right));
+    bottom:calc(12px + env(safe-area-inset-bottom));
+    width:min(clamp(220px, 62vw, 280px), calc(100vw - 24px));
+  }
+  #underground-music-artist { letter-spacing:2px; }
+}
 
 /* Checkpoint toast */
 #checkpoint-toast {
@@ -1574,7 +1864,7 @@ canvas.game-canvas {
 
     <!-- Rod Wave image floating above card -->
     <div class="rw-image-wrap">
-      <img src="./assets/Evil_RodWave.png"
+      <img src="https://i.postimg.cc/6pzzgj5j/39-Rod-Wave-1200x834-2.webp"
            alt="Rod Wave" crossorigin="anonymous" />
     </div>
 
@@ -1597,7 +1887,7 @@ canvas.game-canvas {
         </button>
         <button class="gm-btn" id="btn-underground" onclick="selectMode('underground')">
           UNDERGROUND MODE
-          <span class="soon-tag">LOCKED</span>
+          <span class="soon-tag">NEW</span>
         </button>
       </div>
 
@@ -1627,6 +1917,28 @@ canvas.game-canvas {
   </div>
 </div>
 
+<div id="underground-picker">
+  <div class="ug-panel">
+    <div class="ug-title">Pick your underground goat</div>
+    <div class="ug-subtitle">four doors below the city</div>
+    <div class="ug-grid">
+      <button class="ug-card" data-goat="Bleood">
+        <span class="ug-card-name">Bleood</span>
+      </button>
+      <button class="ug-card" data-goat="Ohsxnta">
+        <span class="ug-card-name">Ohsxnta</span>
+      </button>
+      <button class="ug-card" data-goat="1oneam">
+        <span class="ug-card-name">1oneam</span>
+      </button>
+      <button class="ug-card" data-goat="prettifun">
+        <span class="ug-card-name">prettifun</span>
+      </button>
+    </div>
+    <button class="ug-play" id="underground-play-btn" onclick="confirmUndergroundGoat()" disabled>PLAY</button>
+  </div>
+</div>
+
 <!-- ══════════ HUD ══════════ -->
 <div id="hud">
   <div id="stage-pill">TITAN TOWER</div>
@@ -1650,6 +1962,25 @@ canvas.game-canvas {
       ⚡
     </div>
     <span>DASH [Q]</span>
+  </div>
+  <div id="underground-music-ui">
+    <div id="underground-music-kicker">Now Playing</div>
+    <div id="underground-music-title">—</div>
+    <div id="underground-music-artist">—</div>
+    <div id="underground-music-viz">
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+      <div class="underground-music-bar"></div>
+    </div>
   </div>
 </div>
 
@@ -1792,6 +2123,164 @@ canvas.game-canvas {
 <audio id="track2" src="https://archive.org/download/diddy-ave-married/diddy%20ave%20married.mp3" crossorigin="anonymous"></audio>
 
 <script>
+const PLAYER_SPRITE_URL = 'https://i.postimg.cc/6pzzgj5j/39-Rod-Wave-1200x834-2.webp';
+const UNDERGROUND_PLAYLISTS = {
+  Bleood: [
+    { title: 'i <3 seals', artist: 'Bleood', src: './assets/i_<3_seals_by_bleood.mp3' },
+    { title: '13 reasons u should kill yourself', artist: 'Bleood', src: './assets/13_reasons_u_should_kill_yourself_by_bleood.mp3' },
+    { title: 'enarmored with dread', artist: 'Bleood', src: './assets/enarmored_with_dread_by_bleood.mp3' },
+  ],
+  Ohsxnta: [
+    { title: 'Change', artist: 'ohsxnta', src: './assets/Change_by_ohsxnta.mp3' },
+    { title: 'Fck Up Chos', artist: 'ohsxnta', src: './assets/Fck_Up_Chos_by_ohsxnta.mp3' },
+  ],
+  '1oneam': [
+    { title: 'Where You At', artist: '1oneam', src: './assets/Where_You_At_by_1oneam.mp3' },
+    { title: 'vogue', artist: '1oneam', src: './assets/vogue_by_1oneam.mp3' },
+    { title: 'Bless Up', artist: '1oneam', src: './assets/Bless_Up_by_1oneam.mp3' },
+  ],
+  prettifun: [
+    { title: 'Ice Cream', artist: 'prettifun', src: './assets/Ice_Cream_by_Prettifun.mp3' },
+    { title: 'Light', artist: 'prettifun', src: './assets/Light_by_Prettifun.mp3' },
+  ],
+};
+let _undergroundPlaylistAudio = null;
+let _undergroundLastTrack = '';
+let _undergroundCurrentTrack = null;
+let _undergroundAudioCtx = null;
+let _undergroundAnalyser = null;
+let _undergroundSourceNode = null;
+let _undergroundFreqData = null;
+let _undergroundVizRaf = 0;
+
+function _playMenuTracks() {
+  _stopUndergroundPlaylist();
+  const t1 = document.getElementById('track1');
+  const t2 = document.getElementById('track2');
+  t1.volume = 0.55; t2.volume = 0.55;
+  function playTrack(cur, nxt) {
+    cur.currentTime = 0;
+    cur.play().catch(() => {});
+    cur.onended = () => playTrack(nxt, cur);
+  }
+  playTrack(t1, t2);
+}
+
+function _stopMenuTracks() {
+  const t1 = document.getElementById('track1');
+  const t2 = document.getElementById('track2');
+  [t1, t2].forEach(track => {
+    track.pause();
+    track.currentTime = 0;
+    track.onended = null;
+  });
+}
+
+function _pickUndergroundTrack(goat) {
+  const playlist = UNDERGROUND_PLAYLISTS[goat] || [];
+  if (!playlist.length) return null;
+  if (playlist.length === 1) return playlist[0];
+  let next = playlist[Math.floor(Math.random() * playlist.length)];
+  while (next.src === _undergroundLastTrack) {
+    next = playlist[Math.floor(Math.random() * playlist.length)];
+  }
+  return next;
+}
+
+function _startUndergroundPlaylist(goat) {
+  _stopMenuTracks();
+  _stopUndergroundPlaylist();
+  const nextTrack = _pickUndergroundTrack(goat);
+  if (!nextTrack) return;
+  _undergroundLastTrack = nextTrack.src;
+  _undergroundCurrentTrack = nextTrack;
+  _undergroundPlaylistAudio = new Audio(nextTrack.src);
+  _undergroundPlaylistAudio.volume = 0.55;
+  _undergroundPlaylistAudio.onended = () => _startUndergroundPlaylist(goat);
+  _setupUndergroundAudioAnalyser();
+  _updateUndergroundMusicUI();
+  _undergroundPlaylistAudio.play().catch(() => {});
+}
+
+function _stopUndergroundPlaylist() {
+  if (_undergroundVizRaf) {
+    cancelAnimationFrame(_undergroundVizRaf);
+    _undergroundVizRaf = 0;
+  }
+  if (!_undergroundPlaylistAudio) return;
+  _undergroundPlaylistAudio.pause();
+  _undergroundPlaylistAudio.currentTime = 0;
+  _undergroundPlaylistAudio.onended = null;
+  _undergroundPlaylistAudio = null;
+  _undergroundCurrentTrack = null;
+  _undergroundSourceNode = null;
+  _undergroundAnalyser = null;
+  _undergroundFreqData = null;
+  _hideUndergroundMusicUI();
+}
+
+function _setupUndergroundAudioAnalyser() {
+  if (!_undergroundPlaylistAudio) return;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return;
+  if (!_undergroundAudioCtx) _undergroundAudioCtx = new AudioCtx();
+  if (_undergroundAudioCtx.state === 'suspended') _undergroundAudioCtx.resume().catch(() => {});
+  _undergroundSourceNode = _undergroundAudioCtx.createMediaElementSource(_undergroundPlaylistAudio);
+  _undergroundAnalyser = _undergroundAudioCtx.createAnalyser();
+  _undergroundAnalyser.fftSize = 64;
+  _undergroundAnalyser.smoothingTimeConstant = 0.82;
+  _undergroundFreqData = new Uint8Array(_undergroundAnalyser.frequencyBinCount);
+  _undergroundSourceNode.connect(_undergroundAnalyser);
+  _undergroundAnalyser.connect(_undergroundAudioCtx.destination);
+  _tickUndergroundVisualizer();
+}
+
+function _updateUndergroundMusicUI() {
+  const root = document.getElementById('underground-music-ui');
+  if (!root || !_undergroundCurrentTrack) return;
+  const titleEl = document.getElementById('underground-music-title');
+  titleEl.textContent = _undergroundCurrentTrack.title;
+  document.getElementById('underground-music-artist').textContent = _undergroundCurrentTrack.artist;
+  root.classList.add('visible');
+  requestAnimationFrame(_fitUndergroundMusicTitle);
+}
+
+function _hideUndergroundMusicUI() {
+  const root = document.getElementById('underground-music-ui');
+  if (!root) return;
+  root.classList.remove('visible');
+}
+
+function _fitUndergroundMusicTitle() {
+  const titleEl = document.getElementById('underground-music-title');
+  if (!titleEl) return;
+  const maxSize = Math.max(24, Math.min(36, window.innerWidth * 0.02));
+  let size = maxSize;
+  titleEl.style.fontSize = `${size}px`;
+  while (titleEl.scrollWidth > titleEl.clientWidth && size > 16) {
+    size -= 1;
+    titleEl.style.fontSize = `${size}px`;
+  }
+}
+
+function _tickUndergroundVisualizer() {
+  if (!_undergroundAnalyser || !_undergroundFreqData) return;
+  _undergroundAnalyser.getByteFrequencyData(_undergroundFreqData);
+  const bars = document.querySelectorAll('.underground-music-bar');
+  const binsPerBar = Math.max(1, Math.floor(_undergroundFreqData.length / bars.length));
+  bars.forEach((bar, idx) => {
+    let total = 0;
+    for (let i = 0; i < binsPerBar; i++) {
+      total += _undergroundFreqData[Math.min(_undergroundFreqData.length - 1, idx * binsPerBar + i)];
+    }
+    const level = total / (binsPerBar * 255);
+    const scale = 0.18 + level * 0.92;
+    bar.style.transform = `scaleY(${scale.toFixed(3)})`;
+    bar.style.opacity = `${Math.min(1, 0.55 + level * 0.6)}`;
+  });
+  _undergroundVizRaf = requestAnimationFrame(_tickUndergroundVisualizer);
+}
+
 /* ── DYNAMIC VIEWPORT HEIGHT — fix for mobile browser chrome ── */
 function setVH(){
   const h = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
@@ -1832,14 +2321,30 @@ for(let i=0;i<10;i++){
 }
 
 let selectedMode='obby';
+let selectedUndergroundGoat = null;
 function selectMode(m){
-  if(m==='underground'){ alert('UNDERGROUND MODE IS LOCKED.'); return; }
-  if(m!=='obby' && m!=='race'){ alert('COMING SOON!'); return; }
+  if(m!=='obby' && m!=='race' && m!=='underground'){ alert('COMING SOON!'); return; }
   selectedMode=m;
   ['obby','race','free','underground'].forEach(id=>{
     document.getElementById('btn-'+id).classList.toggle('active',id===m);
   });
 }
+
+function selectUndergroundGoat(name){
+  selectedUndergroundGoat = name;
+  document.querySelectorAll('.ug-card').forEach(card => {
+    card.classList.toggle('selected', card.dataset.goat === name);
+  });
+  const play = document.getElementById('underground-play-btn');
+  if(play) {
+    play.disabled = false;
+    play.classList.add('ready');
+  }
+}
+
+document.querySelectorAll('.ug-card').forEach(card => {
+  card.addEventListener('click', () => selectUndergroundGoat(card.dataset.goat));
+});
 
 /* ══════════════════════════════════════════
    ACHIEVEMENT SYSTEM
@@ -2805,6 +3310,11 @@ function startGame(){
     _openKartCustomize();
     return;
   }
+  if(currentMode === 'underground') {
+    document.getElementById('menu').style.display='none';
+    document.getElementById('underground-picker').style.display='flex';
+    return;
+  }
   document.getElementById('menu').style.display='none';
   
   // Mobile UI Cleanup & Separation
@@ -2831,18 +3341,32 @@ function startGame(){
     document.querySelectorAll('.evil-word').forEach(el => el.remove());
     document.getElementById('evil-drips').innerHTML = '';
   }
-  const t1=document.getElementById('track1');
-  const t2=document.getElementById('track2');
-  t1.volume=0.55; t2.volume=0.55;
-  function playTrack(cur,nxt){ cur.currentTime=0; cur.play().catch(()=>{}); cur.onended=()=>playTrack(nxt,cur); }
-  playTrack(t1,t2);
+  _playMenuTracks();
   if(currentMode === 'race'){
     document.getElementById('race-hud').style.display='block';
     initRace();
+  } else if(currentMode === 'underground'){
+    initUnderground();
   } else {
     document.getElementById('hud').style.display='block';
     init();
   }
+}
+
+function confirmUndergroundGoat(){
+  if(!selectedUndergroundGoat) return;
+  currentMode = 'underground';
+  document.getElementById('underground-picker').style.display='none';
+
+  _applyPlayerNameToHUD();
+  if(evilMode) {
+    _evilTimers.forEach(id => { clearTimeout(id); clearInterval(id); });
+    _evilTimers = [];
+    document.querySelectorAll('.evil-word').forEach(el => el.remove());
+    document.getElementById('evil-drips').innerHTML = '';
+  }
+  _startUndergroundPlaylist(selectedUndergroundGoat);
+  initUnderground();
 }
 
 function backToMenu(){
@@ -2858,6 +3382,9 @@ function backToMenu(){
   document.getElementById('touch-controls').style.display='none';
   document.getElementById('kart-customize').style.display='none';
   document.getElementById('leaderboard-screen').style.display='none';
+  document.getElementById('underground-picker').style.display='none';
+  _stopUndergroundPlaylist();
+  if(typeof cleanupUndergroundMode === 'function') cleanupUndergroundMode();
   // Remove renderer canvas so fresh init rebuilds scene cleanly
   if(renderer && renderer.domElement && renderer.domElement.parentNode){
     renderer.domElement.parentNode.removeChild(renderer.domElement);
@@ -2869,6 +3396,11 @@ function backToMenu(){
     _returnToEvilMenu();
   }
   document.getElementById('menu').style.display='flex';
+  document.getElementById('stage-pill').style.display='';
+  document.getElementById('hud-stats').style.display='';
+  document.getElementById('checkpoint-toast').style.display='';
+  document.getElementById('controls-bar').style.display='';
+  document.getElementById('dash-indicator').style.display='';
 }
 
 function restartGame(){
@@ -2901,12 +3433,58 @@ function init(){
   /* No clouds — space void setting */
 
   ObbyManager.init();
+  document.getElementById('stage-pill').style.display='';
+  document.getElementById('hud-stats').style.display='';
+  document.getElementById('checkpoint-toast').style.display='';
+  document.getElementById('controls-bar').style.display='';
+  document.getElementById('dash-indicator').style.display='';
   // Override scene settings for evil mode AFTER ObbyManager.init() sets them
   if(evilMode) _applyEvilScene();
   setupControls();
   lastTime=performance.now();
   gameRunning=true;
   if(evilMode) _scheduleJumpscare(); // MUST be after gameRunning=true
+  clock.start();
+  animate();
+}
+
+function initUnderground(){
+  scene=new THREE.Scene();
+  scene.background = new THREE.Color(0x000000);
+  scene.fog = new THREE.FogExp2(0x020000, 0.006);
+  camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,2500);
+  camera.position.set(0, 10, 40);
+  renderer=new THREE.WebGLRenderer({antialias:!isMobile});
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.shadowMap.enabled=false;
+  renderer.setPixelRatio(Math.min(devicePixelRatio,isMobile?1.0:1.5));
+  document.body.appendChild(renderer.domElement);
+  renderer.domElement.classList.add('game-canvas');
+
+  scene.add(new THREE.AmbientLight(0x080000, 0.25));
+  if(typeof loadUndergroundMode === 'function') loadUndergroundMode({
+    goat: selectedUndergroundGoat,
+    spriteUrl: PLAYER_SPRITE_URL
+  });
+  document.getElementById('hud').style.display='block';
+  document.getElementById('stage-pill').style.display='none';
+  document.getElementById('hud-stats').style.display='none';
+  document.getElementById('checkpoint-toast').style.display='none';
+  document.getElementById('controls-bar').style.display='none';
+  document.getElementById('dash-indicator').style.display='none';
+  setupControls();
+
+  window.onresize=()=>{
+    setVH();
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+    if(isMobile) checkOrientation();
+    _fitUndergroundMusicTitle();
+  };
+
+  lastTime=performance.now();
+  gameRunning=true;
   clock.start();
   animate();
 }
@@ -3133,7 +3711,8 @@ function animate(){
     return;
   }
 
-  ObbyManager.update(delta);
+  if(currentMode === 'obby') ObbyManager.update(delta);
+  if(currentMode === 'underground' && typeof updateUndergroundMode === 'function') updateUndergroundMode(delta);
   renderer.render(scene,camera);
 }
 </script>

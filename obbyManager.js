@@ -85,7 +85,9 @@ const ObbyManager = (function () {
   /* LOD culling */
   let _lodTimer = 0;
   const LOD_CULL_DIST = 700;  // units ahead/behind player
+  const LOD_DECO_CULL_DIST = 760;
   const LOD_CULL_INTERVAL = 0.12; // seconds between culling passes
+  const _tmpDistVec = new THREE.Vector3();
 
   function init() {
     _resetWorld();
@@ -199,7 +201,16 @@ const ObbyManager = (function () {
     const pz = _ps.position.z;
     for (let i = 0; i < _platforms.length; i++) {
       const rec = _platforms[i];
-      rec.mesh.visible = Math.abs(rec.z - pz) <= LOD_CULL_DIST;
+      rec.mesh.visible = rec.collidable !== false && Math.abs(rec.z - pz) <= LOD_CULL_DIST;
+    }
+    _cullGroupChildren(_decoGroup, pz, LOD_DECO_CULL_DIST);
+  }
+
+  function _cullGroupChildren(group, pz, dist) {
+    if (!group) return;
+    for (const child of group.children) {
+      if (!child) continue;
+      child.visible = Math.abs(child.position.z - pz) <= dist;
     }
   }
 
@@ -989,7 +1000,8 @@ const ObbyManager = (function () {
   function _applyCheckpoints() {
     for (const cp of _checkpoints) {
       if (cp.activated) continue;
-      if (_ps.position.distanceTo(new THREE.Vector3(cp.x, cp.y, cp.z)) < cp.radius) {
+      _tmpDistVec.set(cp.x, cp.y, cp.z);
+      if (_ps.position.distanceTo(_tmpDistVec) < cp.radius) {
         cp.activated = true;
         _obbySound('checkpoint');
         _respawnPoint.set(cp.x, cp.y + 2.5, cp.z);
@@ -1030,16 +1042,25 @@ const ObbyManager = (function () {
 
   function _updateDynamicObstacles(delta) {
     for (const pad of _jumpPads) {
+      if (_ps && Math.abs(pad.z - _ps.position.z) > LOD_DECO_CULL_DIST) continue;
       const pulse = 0.88 + 0.12 * Math.sin(_gt * 5 + pad.pulseOffset);
       let trigger = 1;
       if (pad.animT > 0) { pad.animT -= delta; trigger = 1.2; }
       pad.mesh.scale.set(pulse * trigger, 1, pulse * trigger);
     }
-    for (const l of _laserFences) l.mesh.position.x = l.baseX + Math.sin(_gt * l.speed) * l.amp;
-    for (const g of _crusherGates) g.mesh.position.y = g.baseY + Math.sin(_gt * g.speed) * g.range;
+    for (const l of _laserFences) {
+      if (_ps && Math.abs(l.z - _ps.position.z) > LOD_DECO_CULL_DIST) continue;
+      l.mesh.position.x = l.baseX + Math.sin(_gt * l.speed) * l.amp;
+    }
+    for (const g of _crusherGates) {
+      if (_ps && Math.abs(g.z - _ps.position.z) > LOD_DECO_CULL_DIST) continue;
+      g.mesh.position.y = g.baseY + Math.sin(_gt * g.speed) * g.range;
+    }
     for (const p of _glassWalkways) {
       if (!_ps) continue;
-      const d = _ps.position.distanceTo(new THREE.Vector3(p.x, p.y, p.z));
+      if (Math.abs(p.z - _ps.position.z) > LOD_DECO_CULL_DIST) continue;
+      _tmpDistVec.set(p.x, p.y, p.z);
+      const d = _ps.position.distanceTo(_tmpDistVec);
       p.mesh.material.opacity = d < 10 ? 1.0 : 0.3;
     }
 
@@ -1570,7 +1591,11 @@ const ObbyManager = (function () {
   }
 
   function _createPlayer() {
-    const tex = new THREE.TextureLoader().load('./assets/Evil_RodWave.png');
+    const tex = new THREE.TextureLoader().load(
+      (typeof PLAYER_SPRITE_URL !== 'undefined')
+        ? PLAYER_SPRITE_URL
+        : 'https://i.postimg.cc/6pzzgj5j/39-Rod-Wave-1200x834-2.webp'
+    );
     _ps = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
     _ps.scale.set(2.2, 3.3, 1);
     _ps.position.copy(SPAWN);
