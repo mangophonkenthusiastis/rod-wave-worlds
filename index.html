@@ -195,32 +195,71 @@ body {
   margin-bottom:26px;
 }
 .gm-btn {
+  --gm-accent: #c9a84c;
+  --gm-rgb: 201,168,76;
   position:relative; overflow:hidden;
   padding:9px 20px;
   font-family:'Barlow Condensed'; font-size:14px;
   font-weight:700; letter-spacing:3px; text-transform:uppercase;
   background:transparent;
-  border:1px solid rgba(201,168,76,0.35);
-  color:rgba(201,168,76,0.65);
+  border:1px solid rgba(var(--gm-rgb),0.35);
+  color:rgba(var(--gm-rgb),0.72);
   cursor:pointer; transition:all 0.22s;
 }
 .gm-btn::after {
   content:''; position:absolute; inset:0;
-  background: linear-gradient(135deg, rgba(201,168,76,0.06), transparent);
+  background: linear-gradient(135deg, rgba(var(--gm-rgb),0.12), transparent 68%);
   opacity:0; transition:opacity 0.2s;
 }
-.gm-btn:hover { background:rgba(201,168,76,0.07); border-color:rgba(201,168,76,0.85); color:#c9a84c; }
+.gm-btn:hover {
+  background:rgba(var(--gm-rgb),0.08);
+  border-color:rgba(var(--gm-rgb),0.88);
+  color:var(--gm-accent);
+}
 .gm-btn:hover::after { opacity:1; }
 .gm-btn.active {
-  background:rgba(201,168,76,0.1);
-  border-color:#c9a84c;
-  color:#f0d080;
-  box-shadow: 0 0 14px rgba(201,168,76,0.2);
+  background:rgba(var(--gm-rgb),0.12);
+  border-color:var(--gm-accent);
+  color:color-mix(in srgb, var(--gm-accent) 78%, white);
+  box-shadow: 0 0 14px rgba(var(--gm-rgb),0.2);
 }
 .gm-btn .soon-tag {
   position:absolute; top:2px; right:3px;
   font-size:7px; letter-spacing:1px;
-  color:rgba(201,168,76,0.45);
+  color:rgba(var(--gm-rgb),0.52);
+}
+
+#btn-obby {
+  --gm-accent: #d7bb6d;
+  --gm-rgb: 215,187,109;
+}
+#btn-race {
+  --gm-accent: #6bbce2;
+  --gm-rgb: 107,188,226;
+}
+#btn-underground {
+  --gm-accent: #d16a5f;
+  --gm-rgb: 209,106,95;
+}
+#btn-free {
+  --gm-accent: #8b8374;
+  --gm-rgb: 139,131,116;
+  opacity:0.42;
+  border-style:dashed;
+  color:rgba(var(--gm-rgb),0.5);
+}
+#btn-free::after {
+  background: linear-gradient(135deg, rgba(var(--gm-rgb),0.05), transparent 72%);
+}
+#btn-free:hover,
+#btn-free.active {
+  background:rgba(var(--gm-rgb),0.04);
+  border-color:rgba(var(--gm-rgb),0.28);
+  color:rgba(var(--gm-rgb),0.58);
+  box-shadow:none;
+}
+#btn-free .soon-tag {
+  color:rgba(var(--gm-rgb),0.34);
 }
 
 /* Divider */
